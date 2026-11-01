@@ -70,6 +70,12 @@ body{
 /* 나라 둘러보기 */
 .sheet{position:fixed;inset:0;background:rgba(255,244,230,.97);z-index:10;display:none;flex-direction:column;padding:2.5vmin}
 .sheet.open{display:flex}
+.gear{position:absolute;top:1.6vmin;right:1.6vmin;width:6.5vmin;height:6.5vmin;min-width:44px;min-height:44px;font-size:3.2vmin;opacity:.8}
+.vlist{flex:1;overflow:auto;display:flex;flex-direction:column;gap:1.2vmin}
+.vlist h3{margin:1vmin 0 0;font-family:'Jua',sans-serif;font-size:3.2vmin}
+.vbtn{border:none;border-radius:2.2vmin;padding:1.6vmin 2vmin;text-align:left;background:#fff;font-size:2.8vmin;color:var(--ink);box-shadow:0 .5vmin 1.2vmin rgba(150,110,170,.2);cursor:pointer}
+.vbtn.sel{background:var(--mint);outline:.5vmin solid var(--mint-d)}
+.vbtn small{display:block;opacity:.6;font-size:2.2vmin}
 .sheet header{display:flex;justify-content:space-between;align-items:center;font-family:'Jua',sans-serif;font-size:4.4vmin;margin-bottom:1.5vmin}
 .sheet header button{border:none;border-radius:50%;width:8vmin;height:8vmin;font-size:4vmin;background:var(--pink);cursor:pointer}
 .grid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(18vmin,1fr));gap:1.6vmin;align-content:start;padding:.5vmin}
@@ -85,6 +91,7 @@ body{
 <body>
 <div class="app">
   <section class="card flag-pane">
+    <button class="small gear" id="gear" title="목소리 고르기">⚙️</button>
     <div class="status" id="status">🎤 버튼을 누르고 나라 이름을 말해 보세요!</div>
     <div class="flag-frame" id="flag">
       <div class="welcome"><div class="globe">🌍</div><p>어느 나라가 궁금해요?</p></div>
@@ -117,6 +124,11 @@ body{
     <div class="desc" id="desc">마이크를 누르고 "프랑스"처럼 말해 보세요. 국기와 이야기가 나와요!</div>
     <button class="read" id="read" disabled>🔊 읽어주기</button>
   </section>
+</div>
+
+<div class="sheet" id="voiceSheet">
+  <header><span>🗣️ 목소리 고르기</span><button id="closeVoice">✖</button></header>
+  <div class="vlist" id="vlist"></div>
 </div>
 
 <div class="sheet" id="sheet">
@@ -215,6 +227,46 @@ const flagURL = code => `https://flagcdn.com/${code}.svg`;
 let current = null;
 const synth = window.speechSynthesis;
 
+// ---- 목소리 고르기: 삼성/여성 목소리를 먼저 찾아서 사용 ----
+let allVoices = [];
+function loadVoices(){ allVoices = synth.getVoices(); }
+loadVoices(); synth.onvoiceschanged = loadVoices;
+const vkey = v => v.voiceURI || v.name;
+function vscore(v, lang){
+  const t = (v.name+' '+v.voiceURI).toLowerCase();
+  let sc = 0;
+  if(/samsung|삼성|smt/.test(t)) sc += 60;
+  if(/female|woman|여성|여자|yuna|유나|sora|소라|heami|sunhi|sun-hi|seoyeon|ism|kab|kac/.test(t)) sc += 30;
+  if(/(^|[^a-z])male|남성|남자|man\b/.test(t) && !/female/.test(t)) sc -= 60;
+  if(v.localService) sc += 10;
+  if(v.lang.replace('_','-').toLowerCase() === lang.toLowerCase()) sc += 20;
+  return sc;
+}
+function pickVoice(lang){
+  const pre = lang.slice(0,2).toLowerCase();
+  const list = allVoices.filter(v=>v.lang.toLowerCase().replace('_','-').startsWith(pre));
+  if(!list.length) return null;
+  const saved = localStorage.getItem('voice_'+pre);
+  if(saved){ const m = list.find(v=>vkey(v)===saved); if(m) return m; }
+  return list.sort((a,b)=>vscore(b,lang)-vscore(a,lang))[0];
+}
+function renderVoices(){
+  loadVoices();
+  const html = [['ko','한국어 목소리','ko-KR','안녕하세요! 브라질에 대해 알려 줄게요.'],['en','영어 목소리','en-US','Hello! This is Brazil.']].map(([pre,title,lang,sample])=>{
+    const list = allVoices.filter(v=>v.lang.toLowerCase().replace('_','-').startsWith(pre));
+    const cur = pickVoice(lang);
+    return `<h3>${title}</h3>` + (list.length ? list.map(v=>`<button class="vbtn ${cur&&vkey(v)===vkey(cur)?'sel':''}" data-pre="${pre}" data-k="${vkey(v)}" data-s="${sample}" data-l="${lang}">${v.name}<small>${v.lang}${v.localService?' · 기기 안 목소리':''}</small></button>`).join('') : '<div>목소리를 찾지 못했어요</div>');
+  }).join('') + '<h3>목소리가 이상하면?</h3><div style="font-size:2.6vmin;line-height:1.5">갤럭시 설정 → 일반 → 언어 → <b>텍스트 음성 변환</b> → 기본 엔진을 <b>Samsung 텍스트 음성 변환</b>으로 바꾸고, 한국어 음성(여성)을 내려받은 뒤 크롬을 다시 켜 주세요.</div>';
+  $('vlist').innerHTML = html;
+}
+$('gear').onclick = ()=>{ renderVoices(); $('voiceSheet').classList.add('open'); };
+$('closeVoice').onclick = ()=>{ $('voiceSheet').classList.remove('open'); stopSpeak(); };
+$('vlist').onclick = e=>{
+  const b = e.target.closest('.vbtn'); if(!b) return;
+  localStorage.setItem('voice_'+b.dataset.pre, b.dataset.k);
+  renderVoices(); stopSpeak(); say(b.dataset.s, b.dataset.l, .9);
+};
+
 let speaking = 0, gen = 0, muteUntil = 0, want = false;
 const busy = ()=> speaking>0 || want;
 function refresh(){
@@ -227,7 +279,8 @@ function refresh(){
 function say(text, lang, rate, onend){
   const g = gen;
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang; u.rate = rate; u.pitch = 1.1;
+  u.lang = lang; u.rate = rate; u.pitch = 1.05;
+  const vv = pickVoice(lang); if(vv){ u.voice = vv; u.lang = vv.lang; }
   const done = ()=>{ if(g!==gen) return; speaking--; muteUntil = Date.now()+900; refresh(); onend&&onend(); };
   u.onend = done; u.onerror = done;
   speaking++; refresh();
