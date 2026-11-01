@@ -255,7 +255,8 @@ function renderVoices(){
   const html = [['ko','한국어 목소리','ko-KR','안녕하세요! 브라질에 대해 알려 줄게요.'],['en','영어 목소리','en-US','Hello! This is Brazil.']].map(([pre,title,lang,sample])=>{
     const list = allVoices.filter(v=>v.lang.toLowerCase().replace('_','-').startsWith(pre));
     const cur = pickVoice(lang);
-    return `<h3>${title}</h3>` + (list.length ? list.map(v=>`<button class="vbtn ${cur&&vkey(v)===vkey(cur)?'sel':''}" data-pre="${pre}" data-k="${vkey(v)}" data-s="${sample}" data-l="${lang}">${v.name}<small>${v.lang}${v.localService?' · 기기 안 목소리':''}</small></button>`).join('') : '<div>목소리를 찾지 못했어요</div>');
+    const info = cur ? `지금 쓰는 목소리: <b>${cur.name}</b> (${cur.lang})` : '<b style="color:#d9486e">⚠️ 이 기기에 해당 언어 목소리가 없어요. 아래 방법으로 내려받아 주세요.</b>';
+    return `<h3>${title}</h3><div style="font-size:2.4vmin">${info} · 목록 ${list.length}개</div>` + (list.length ? list.map(v=>`<button class="vbtn ${cur&&vkey(v)===vkey(cur)?'sel':''}" data-pre="${pre}" data-k="${vkey(v)}" data-s="${sample}" data-l="${lang}">${v.name}<small>${v.lang}${v.localService?' · 기기 안 목소리':''}</small></button>`).join('') : '<div>목소리를 찾지 못했어요</div>');
   }).join('') + '<h3>목소리가 이상하면?</h3><div style="font-size:2.6vmin;line-height:1.5">갤럭시 설정 → 일반 → 언어 → <b>텍스트 음성 변환</b> → 기본 엔진을 <b>Samsung 텍스트 음성 변환</b>으로 바꾸고, 한국어 음성(여성)을 내려받은 뒤 크롬을 다시 켜 주세요.</div>';
   $('vlist').innerHTML = html;
 }
