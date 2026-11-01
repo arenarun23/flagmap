@@ -256,7 +256,7 @@ function renderVoices(){
   const html = [['ko','한국어 목소리','ko-KR','안녕하세요! 브라질에 대해 알려 줄게요.'],['en','영어 목소리','en-US','Hello! This is Brazil.']].map(([pre,title,lang,sample])=>{
     const list = allVoices.filter(v=>v.lang.toLowerCase().replace('_','-').startsWith(pre));
     const cur = pickVoice(lang);
-    const info = cur ? `지금 쓰는 목소리: <b>${cur.name}</b> (${cur.lang})` : '<b style="color:#d9486e">⚠️ 이 기기에 해당 언어 목소리가 없어요. 아래 방법으로 내려받아 주세요.</b>';
+    const info = cur ? `지금 쓰는 목소리: <b>${cur.name}</b> (${cur.lang})` : '기기 기본 목소리를 쓰고 있어요 (정상이에요 👍)';
     return `<h3>${title}</h3><div style="font-size:2.4vmin">${info} · 목록 ${list.length}개</div>` + (list.length ? list.map(v=>`<button class="vbtn ${cur&&vkey(v)===vkey(cur)?'sel':''}" data-pre="${pre}" data-k="${vkey(v)}" data-s="${sample}" data-l="${lang}">${v.name}<small>${v.lang}${v.localService?' · 기기 안 목소리':''}</small></button>`).join('') : '<div>목소리를 찾지 못했어요</div>');
   }).join('') + `<h3>이 기기의 전체 목소리 (${allVoices.length}개)</h3>` + (allVoices.length ? allVoices.map(v=>`<div style="font-size:2.2vmin">${v.name} · ${v.lang}${v.localService?' · local':''}</div>`).join('') : '<div style="font-size:2.4vmin">크롬이 목소리 목록을 하나도 주지 않았어요.</div>') + '<button class="vbtn" id="koTest">🔊 한국어로 말해 보기 (기본 목소리)</button><h3>목소리가 이상하면?</h3><div style="font-size:2.6vmin;line-height:1.5">갤럭시 설정 → 일반 → 언어 → <b>텍스트 음성 변환</b> → 기본 엔진을 <b>Samsung 텍스트 음성 변환</b>으로 바꾸고, 한국어 음성(여성)을 내려받은 뒤 크롬을 다시 켜 주세요.</div>';
   $('vlist').innerHTML = html;
@@ -267,7 +267,7 @@ $('vlist').onclick = e=>{
   if(e.target.id==='koTest'){ stopSpeak(); const u=new SpeechSynthesisUtterance('안녕하세요. 브라질은 남아메리카에 있는 나라예요.'); u.lang='ko-KR'; synth.speak(u); return; }
   const b = e.target.closest('.vbtn'); if(!b) return;
   localStorage.setItem('voice_'+b.dataset.pre, b.dataset.k);
-  renderVoices(); stopSpeak(); say(b.dataset.s, b.dataset.l, .9);
+  renderVoices(); stopSpeak(); say(b.dataset.s, b.dataset.l);
 };
 
 let speaking = 0, gen = 0, muteUntil = 0, want = false;
@@ -282,14 +282,16 @@ function refresh(){
 function say(text, lang, rate, onend){
   const g = gen;
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang; u.rate = rate; u.pitch = 1.05;
-  const vv = pickVoice(lang); if(vv){ u.voice = vv; u.lang = vv.lang; }
+  u.lang = lang;                       // 속도·높이는 기본값(1) 그대로 둠
+  const sv = localStorage.getItem('voice_'+lang.slice(0,2));
+  const vv = sv && allVoices.find(v=>vkey(v)===sv);   // 직접 고른 목소리만 사용
+  if(vv){ u.voice = vv; u.lang = vv.lang; }
   const done = ()=>{ if(g!==gen) return; speaking--; muteUntil = Date.now()+900; refresh(); onend&&onend(); };
   u.onend = done; u.onerror = done;
   speaking++; refresh();
   synth.speak(u);
 }
-function speak(text, lang){ say(text, lang, lang==='ko-KR' ? .9 : .85); }
+function speak(text, lang){ say(text, lang); }
 function stopSpeak(){ gen++; speaking = 0; synth.cancel(); refresh(); }
 function speakName(c){
   stopSpeak();
@@ -299,11 +301,11 @@ function speakName(c){
 // 오른쪽 위(이름) → 오른쪽 아래(설명) 순서로 읽기
 function speakAll(c){
   speakName(c);
-  say(c[4], 'ko-KR', .85);
+  say(c[4], 'ko-KR');
 }
 function readDesc(){
   if(!current || busy()) return;
-  say(current[1]+'. '+current[4], 'ko-KR', .85);
+  say(current[1]+'. '+current[4], 'ko-KR');
 }
 
 
