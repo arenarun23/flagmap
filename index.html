@@ -235,6 +235,11 @@ function speakName(c){
   speak(c[1],'ko-KR');
   speak(c[2],'en-US');
 }
+// 오른쪽 위(이름) → 오른쪽 아래(설명) 순서로 읽기
+function speakAll(c){
+  speakName(c);
+  say(c[4], 'ko-KR', .85);
+}
 function readDesc(){
   if(!current || busy()) return;
   say(current[1]+'. '+current[4], 'ko-KR', .85);
@@ -285,7 +290,7 @@ function show(c, say=true){
   $('en').textContent = c[2];
   $('desc').textContent = c[4];
   status('🎉 '+c[1]+'!');
-  if(say) speakName(c); else refresh();
+  if(say) speakAll(c); else refresh();
 }
 
 // 음성 인식
@@ -303,10 +308,12 @@ function listen(){
 }
 function startRec(){
   rec = new SR();
-  rec.lang='ko-KR'; rec.maxAlternatives=5; rec.interimResults=false; rec.continuous=true;
-  rec.onstart = ()=>{ setMic(true); status('👂 듣고 있어요... 나라 이름을 말해 주세요! (끄려면 다시 누르기)'); };
-  rec.onend = ()=>{ if(want) setTimeout(()=>{ if(want){ try{ startRec(); }catch(_){ } } },300); else setMic(false); };
+  rec.lang='ko-KR'; rec.maxAlternatives=5; rec.interimResults=false; rec.continuous=false;
+  rec.onstart = ()=>{ setMic(true); status('👂 듣고 있어요... 나라 이름을 말해 주세요!'); };
+  rec.onend = ()=>{ want=false; setMic(false); };   // 한 번 듣고 자동으로 멈춤
   rec.onerror = e=>{
+    if(e.error==='no-speech') status('소리가 안 들렸어요. 🎤를 다시 눌러 볼까요?');
+    else if(e.error!=='aborted' && e.error!=='not-allowed' && e.error!=='service-not-allowed' && e.error!=='network') status('다시 한 번 말해 주세요!');
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){ want=false; refresh(); setMic(false); status('마이크를 허용해 주세요 🙏 (주소창 왼쪽 자물쇠)'); }
     else if(e.error==='network'){ want=false; refresh(); setMic(false); status('인터넷이 필요해요 📶'); }
   };
