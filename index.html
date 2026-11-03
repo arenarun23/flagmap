@@ -36,7 +36,7 @@ body{
 .flag-frame img{max-width:100%;max-height:100%;border-radius:2.4vmin;box-shadow:0 1.2vmin 3vmin rgba(120,80,120,.25);border:1vmin solid #fff;background:#fff;animation:pop .5s ease}
 .flag-frame .emoji{font-size:30vmin;line-height:1}
 .welcome{text-align:center;font-family:'Jua',sans-serif}
-.welcome .globe{font-size:24vmin;animation:float 3s ease-in-out infinite}
+.welcome .globe{width:26vmin;height:26vmin;display:block;margin:0 auto;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 1.2vmin 1.6vmin rgba(120,80,160,.28))}
 .welcome p{font-size:5vmin;margin:1vmin 0}
 @keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:0}100%{transform:none;opacity:1}}
 @keyframes float{50%{transform:translateY(-2vmin)}}
@@ -94,7 +94,7 @@ body{
     <button class="small gear" id="gear" title="목소리 고르기">⚙️</button>
     <div class="status" id="status">🎤 버튼을 누르고 나라 이름을 말해 보세요!</div>
     <div class="flag-frame" id="flag">
-      <div class="welcome"><div class="globe">🌍</div><p>어느 나라가 궁금해요?</p></div>
+      <div class="welcome"><canvas class="globe" id="globe" width="440" height="440"></canvas><p>어느 나라가 궁금해요?</p></div>
     </div>
     <div class="dock">
       <button class="small" id="browse" title="나라 둘러보기">🗺️</button>
@@ -461,6 +461,62 @@ au:[-25,134,70,'AUS'],nz:[-41,173,22,'NZL'],eg:[26.5,30,18,'EGY'],ma:[31.8,-7,14
 za:[-29,24,22,'ZAF'],mg:[-19,46.7,14,'MDG'],
 ad:[42.5,1.5,7,'AND'],af:[33,65,23,'AFG'],ag:[17.05,-61.8,7,'ATG'],al:[41,20,7,'ALB'],am:[40,45,7,'ARM'],ao:[-12.5,18.5,32,'AGO'],az:[40.5,47.5,8,'AZE'],ba:[44,18,7,'BIH'],bb:[13.16666666,-59.53333333,7,'BRB'],bd:[24,90,11,'BGD'],bf:[13,-2,15,'BFA'],bg:[43,25,10,'BGR'],bh:[26,50.55,7,'BHR'],bi:[-3.5,30,7,'BDI'],bj:[9.5,2.25,10,'BEN'],bn:[4.5,114.66666666,7,'BRN'],bo:[-17,-65,30,'BOL'],bs:[24.25,-76,7,'BHS'],bt:[27.5,90.5,7,'BTN'],bw:[-22,24,22,'BWA'],by:[53,28,13,'BLR'],bz:[17.25,-88.75,7,'BLZ'],cd:[0,25,44,'COD'],cf:[7,21,23,'CAF'],cg:[-1,15,17,'COG'],ci:[8,-5,16,'CIV'],cm:[6,12,20,'CMR'],cr:[10,-84,7,'CRI'],cv:[16,-24,7,'CPV'],cy:[35,33,7,'CYP'],dj:[11.5,43,7,'DJI'],dm:[15.41666666,-61.33333333,7,'DMA'],do:[19,-70.66666666,7,'DOM'],dz:[28,3,44,'DZA'],ec:[-2,-77.5,15,'ECU'],ee:[59,26,7,'EST'],er:[15,39,10,'ERI'],fj:[-18,175,7,'FJI'],fm:[6.91666666,158.25,7,'FSM'],ga:[-1,11.75,15,'GAB'],gd:[12.11666666,-61.66666666,7,'GRD'],ge:[42,43.5,8,'GEO'],gh:[8,-2,14,'GHA'],gl:[72,-40,42,'GRL'],gm:[13.46666666,-16.56666666,7,'GMB'],gn:[11,-10,14,'GIN'],gq:[2,10,7,'GNQ'],gt:[15.5,-90.25,10,'GTM'],gw:[12,-15,7,'GNB'],gy:[5,-59,13,'GUY'],hk:[22.267,114.188,7,'HKG'],hn:[15,-86.5,10,'HND'],hr:[45.16666666,15.5,7,'HRV'],ht:[19,-72.41666666,7,'HTI'],iq:[33,44,19,'IRQ'],jo:[31,36,9,'JOR'],kg:[41,75,13,'KGZ'],ki:[1.41666666,173,7,'KIR'],km:[-12.16666666,44.25,7,'COM'],kn:[17.33333333,-62.75,7,'KNA'],kw:[29.5,45.75,7,'KWT'],kz:[48,68,48,'KAZ'],la:[18,105,14,'LAO'],lb:[33.83333333,35.83333333,7,'LBN'],lc:[13.88333333,-60.96666666,7,'LCA'],li:[47.26666666,9.53333333,7,'LIE'],lr:[6.5,-9.5,10,'LBR'],ls:[-29.5,28.5,7,'LSO'],lt:[56,24,7,'LTU'],lu:[49.75,6.16666666,7,'LUX'],lv:[57,25,7,'LVA'],ly:[25,17,38,'LBY'],mc:[43.73333333,7.4,7,'MCO'],md:[47,29,7,'MDA'],me:[42.5,19.3,7,'MNE'],mh:[9,168,7,'MHL'],mk:[41.83333333,22,7,'MKD'],ml:[17,-4,32,'MLI'],mm:[22,98,24,'MMR'],mo:[22.16666666,113.55,7,'MAC'],mr:[20,-12,29,'MRT'],mt:[35.83333333,14.58333333,7,'MLT'],mu:[-20.28333333,57.55,7,'MUS'],mv:[3.25,73,7,'MDV'],mw:[-13.5,34,10,'MWI'],mz:[-18.25,35,26,'MOZ'],na:[-22,17,26,'NAM'],ne:[16,8,32,'NER'],ni:[13,-85,10,'NIC'],nr:[-0.53333333,166.91666666,7,'NRU'],om:[21,57,16,'OMN'],pa:[9,-80,8,'PAN'],pg:[-6,147,20,'PNG'],pk:[30,70,27,'PAK'],pr:[18.25,-66.5,7,'PRI'],ps:[31.9,35.2,7,'PSE'],pw:[7.5,134.5,7,'PLW'],py:[-23,-58,18,'PRY'],qa:[25.5,51.25,7,'QAT'],ro:[46,25,14,'ROU'],rs:[44,21,9,'SRB'],rw:[-2,30,7,'RWA'],sb:[-8,159,7,'SLB'],sc:[-4.58333333,55.66666666,7,'SYC'],sd:[15,30,40,'SDN'],si:[46.11666666,14.81666666,7,'SVN'],sk:[48.66666666,19.5,7,'SVK'],sl:[8.5,-11.5,8,'SLE'],sm:[43.76666666,12.41666666,7,'SMR'],sn:[14,-14,13,'SEN'],so:[10,49,23,'SOM'],sr:[4,-56,12,'SUR'],ss:[7,30,23,'SSD'],st:[1,7,7,'STP'],sv:[13.83333333,-88.91666666,7,'SLV'],sy:[35,38,12,'SYR'],sz:[-26.5,31.5,7,'SWZ'],td:[15,19,33,'TCD'],tg:[8,1.16666666,7,'TGO'],tj:[39,71,11,'TJK'],tl:[-8.83333333,125.91666666,7,'TLS'],tm:[40,60,20,'TKM'],tn:[34,9,12,'TUN'],to:[-20,-175,7,'TON'],tt:[11,-61,7,'TTO'],tv:[-8,178,7,'TUV'],ug:[1,32,14,'UGA'],uy:[-33,-56,12,'URY'],uz:[41,64,19,'UZB'],va:[41.9,12.45,7,'VAT'],vc:[13.25,-61.2,7,'VCT'],ve:[8,-66,28,'VEN'],vu:[-16,167,7,'VUT'],ws:[-13.58333333,-172.33333333,7,'WSM'],xk:[42.666667,21.166667,7,'UNK'],ye:[15,48,21,'YEM'],zm:[-15,30,25,'ZMB'],zw:[-20,30,18,'ZWE']};
 $('land').setAttribute('d', Object.values(LAND).join(''));
+
+// ---- 빙글빙글 도는 지구본 (첫 화면) ----
+(function(){
+  const cv = $('globe'); if(!cv) return;
+  const g = cv.getContext('2d'), W = cv.width, R = W*.42, cx = W/2, cy = W/2;
+  const polys = [];
+  Object.values(LAND).join('').split('M').forEach(seg=>{
+    if(!seg) return;
+    const pts = seg.replace('Z','').split('L').map(p=>p.split(' ').map(Number));
+    const n = pts.length, lon = new Float32Array(n), sl = new Float32Array(n), cl = new Float32Array(n), sp = new Float32Array(n), cp = new Float32Array(n);
+    pts.forEach(([x,y],i)=>{ const l=(x-180)*Math.PI/180, p=(90-y)*Math.PI/180; sl[i]=Math.sin(l); cl[i]=Math.cos(l); sp[i]=Math.sin(p); cp[i]=Math.cos(p); });
+    polys.push({n,sl,cl,sp,cp});
+  });
+  const lat0 = 22*Math.PI/180, sl0 = Math.sin(lat0), cl0 = Math.cos(lat0);
+  const sea = g.createRadialGradient(cx-R*.35,cy-R*.4,R*.1,cx,cy,R);
+  sea.addColorStop(0,'#d4f0ff'); sea.addColorStop(.5,'#8fcdf7'); sea.addColorStop(1,'#4a8fe0');
+  const shade = g.createRadialGradient(cx-R*.3,cy-R*.35,R*.5,cx,cy,R);
+  shade.addColorStop(0,'rgba(40,50,150,0)'); shade.addColorStop(1,'rgba(40,40,128,.5)');
+  const hi = g.createRadialGradient(cx-R*.4,cy-R*.45,0,cx-R*.4,cy-R*.45,R*.38);
+  hi.addColorStop(0,'rgba(255,255,255,.9)'); hi.addColorStop(1,'rgba(255,255,255,0)');
+  const land = g.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
+  land.addColorStop(0,'#b8f0c8'); land.addColorStop(1,'#6fcf97');
+  let last = 0;
+  function frame(t){
+    if(!cv.isConnected) return;                 // 나라가 나오면 멈춤
+    requestAnimationFrame(frame);
+    if(t-last < 33) return; last = t;           // 약 30프레임
+    const lon0 = (t/1000*18) % 360 * Math.PI/180;   // 20초에 한 바퀴(360°)
+    const s0 = Math.sin(lon0), c0 = Math.cos(lon0);
+    g.clearRect(0,0,W,W);
+    g.fillStyle = sea; g.beginPath(); g.arc(cx,cy,R,0,6.2832); g.fill();
+    g.save(); g.beginPath(); g.arc(cx,cy,R,0,6.2832); g.clip();
+    g.beginPath();
+    for(const q of polys){
+      let any = false, first = true;
+      const xs = new Float32Array(q.n), ys = new Float32Array(q.n);
+      for(let i=0;i<q.n;i++){
+        const sd = q.sl[i]*c0 - q.cl[i]*s0, cd = q.cl[i]*c0 + q.sl[i]*s0;   // sin/cos(l-lon0)
+        let x = q.cp[i]*sd, y = cl0*q.sp[i] - sl0*q.cp[i]*cd;
+        const z = sl0*q.sp[i] + cl0*q.cp[i]*cd;
+        if(z>=0) any = true; else { const m = Math.hypot(x,y)||1; x/=m; y/=m; }
+        xs[i] = cx + R*x; ys[i] = cy - R*y;
+      }
+      if(!any) continue;
+      for(let i=0;i<q.n;i++){ if(first){ g.moveTo(xs[i],ys[i]); first=false; } else g.lineTo(xs[i],ys[i]); }
+      g.closePath();
+    }
+    g.fillStyle = land; g.fill();
+    g.lineWidth = 1.2; g.strokeStyle = 'rgba(79,174,123,.8)'; g.stroke();
+    g.fillStyle = shade; g.fillRect(0,0,W,W);
+    g.fillStyle = hi; g.fillRect(0,0,W,W);
+    g.restore();
+    g.lineWidth = 5; g.strokeStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.arc(cx,cy,R,0,6.2832); g.stroke();
+  }
+  requestAnimationFrame(frame);
+})();
 let mapZoom = true;
 function drawMap(c){
   const g = c && GEO[c[0]]; if(!g) return;
