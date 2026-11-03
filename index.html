@@ -564,27 +564,34 @@ function listen(){
   want = true; refresh();
   startRec();
 }
+const NOT_HEARD = '알아들을 수 없어요. 다시 말해 주세요.';
+function notHeard(heard){
+  status('🤔 '+NOT_HEARD+(heard?' ("'+heard+'")':''));
+  speak(NOT_HEARD,'ko-KR');
+}
 function startRec(){
   rec = new SR();
+  let handled = false;                          // 결과나 오류를 이미 처리했는지
   rec.lang='ko-KR'; rec.maxAlternatives=5; rec.interimResults=false; rec.continuous=false;
   rec.onstart = ()=>{ setMic(true); status('👂 듣고 있어요... 나라 이름을 말해 주세요!'); };
-  rec.onend = ()=>{ want=false; setMic(false); };   // 한 번 듣고 자동으로 멈춤
+  rec.onend = ()=>{
+    const wasListening = want;                  // 멈춤 버튼으로 끈 경우(want=false)는 말하지 않음
+    want=false; setMic(false);                  // 한 번 듣고 자동으로 멈춤
+    if(!handled && wasListening) notHeard();    // 아무 결과도 없이 끝난 경우
+  };
   rec.onerror = e=>{
-    if(e.error==='no-speech') status('소리가 안 들렸어요. 🎤를 다시 눌러 볼까요?');
-    else if(e.error!=='aborted' && e.error!=='not-allowed' && e.error!=='service-not-allowed' && e.error!=='network') status('다시 한 번 말해 주세요!');
-    if(e.error==='not-allowed'||e.error==='service-not-allowed'){ want=false; refresh(); setMic(false); status('마이크를 허용해 주세요 🙏 (주소창 왼쪽 자물쇠)'); }
-    else if(e.error==='network'){ want=false; refresh(); setMic(false); status('인터넷이 필요해요 📶'); }
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){ handled=true; want=false; refresh(); setMic(false); status('마이크를 허용해 주세요 🙏 (주소창 왼쪽 자물쇠)'); }
+    else if(e.error==='network'){ handled=true; want=false; refresh(); setMic(false); status('인터넷이 필요해요 📶'); }
+    else if(e.error==='aborted'){ handled=true; }
+    else { handled=true; const w=want; want=false; setMic(false); if(w) notHeard(); }   // no-speech 등
   };
   rec.onresult = e=>{
     if(speaking>0 || Date.now()<muteUntil) return;   // 앱이 말하는 소리는 무시
+    handled = true;
     const r = e.results[e.results.length-1];
-    const texts = Array.from(r).map(a=>a.transcript);
-    const c = findCountry(texts);
-    if(c) show(c);
-    else{
-      status('"'+texts[0]+'" 나라를 못 찾았어요. 다시 말해 볼까요?');
-      speak('다시 한 번 말해 줄래요?','ko-KR');
-    }
+    const texts = Array.from(r).map(a=>a.transcript).filter(Boolean);
+    const c = texts.length ? findCountry(texts) : null;
+    if(c) show(c); else notHeard(texts[0]);
   };
   rec.start();
 }
