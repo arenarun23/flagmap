@@ -10,8 +10,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="국기친구들">
 <title>세계 국기 친구들</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../fonts/jua.css">
+<link rel="stylesheet" href="../fonts/gowun-dodum.css">
 <style>
 :root{
   --bg1:#fff4e6; --bg2:#ffe9f1;
@@ -375,7 +375,7 @@ function findCountry(texts){
 const $ = id => document.getElementById(id);
 const status = m => $('status').textContent = m;
 const emojiFlag = code => code.toUpperCase().replace(/./g,ch=>String.fromCodePoint(127397+ch.charCodeAt(0)));
-const flagURL = code => `https://flagcdn.com/${code}.svg`;
+const flagURL = code => `flags/${code}.svg`;   // 자체 호스팅(flags/LICENSE-flag-icons.txt)
 
 let current = null;
 const synth = window.speechSynthesis;
