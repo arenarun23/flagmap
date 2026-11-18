@@ -86,10 +86,19 @@ body{
   .app{grid-template-columns:1fr;grid-template-rows:1.3fr .6fr 1fr}
   .flag-pane{grid-row:auto}
 }
+/* 누르는 느낌(입체 버튼): 아래쪽 두꺼운 그림자(테두리)가 있고, 누르면 그만큼 내려앉는다 */
+.small,.mic,.read,.vbtn,.chip,.sheet header button{--d:max(4px,.7vmin);--edge:#d6c2e6;--soft:0 1vmin 2vmin rgba(150,110,170,.2);box-shadow:0 var(--d) 0 var(--edge),var(--soft);transition:transform .14s ease-out,box-shadow .14s ease-out}
+.mic{--d:max(5px,.9vmin);--edge:#9585e6;--soft:0 1.4vmin 2.6vmin rgba(160,100,200,.35)}
+.read{--d:max(5px,.8vmin);--edge:#7d71d9;--soft:0 1.2vmin 2.4vmin rgba(130,110,220,.3)}
+.vbtn.sel{--edge:var(--mint-d)}
+.sheet header button{--edge:var(--pink-d);--soft:0 0 0 transparent}
+:is(.small,.mic,.read,.vbtn,.chip,.sheet header button):active:not(:disabled){transform:translateY(calc(var(--d) - 1px));box-shadow:0 1px 0 var(--edge),0 0 0 transparent;transition-duration:0s}
+.name-pane{transition:transform .14s ease-out}
+.name-pane:active{transform:translateY(2px) scale(.995);transition-duration:0s}
 /* AIEDU 허브로 가는 아이콘 — 모든 서비스 공통 모양·위치: 페이지 왼쪽 위(body 첫 요소). 앱마다 이 자리를 비워 둔다 */
-.aiedu-home{position:absolute;left:max(8px,env(safe-area-inset-left,0px));top:max(8px,env(safe-area-inset-top,0px));z-index:1000;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(160deg,#ffe58f,#ffb08e);border:2px solid #fff;box-shadow:0 2px 0 rgba(74,52,38,.22);text-decoration:none;-webkit-tap-highlight-color:transparent}
+.aiedu-home{position:absolute;left:max(8px,env(safe-area-inset-left,0px));top:max(8px,env(safe-area-inset-top,0px));z-index:1000;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:linear-gradient(160deg,#ffe58f,#ffb08e);border:2px solid #fff;box-shadow:0 4px 0 #e2916b,0 5px 8px rgba(74,52,38,.16);transition:transform .14s ease-out,box-shadow .14s ease-out;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .aiedu-home svg{width:30px;height:30px;display:block}
-.aiedu-home:active{transform:translateY(2px);box-shadow:none}
+.aiedu-home:active{transform:translateY(3px);box-shadow:0 1px 0 #e2916b;transition-duration:0s}
 .aiedu-home:focus-visible{outline:3px solid #f08a00;outline-offset:2px}
 </style>
 <script src="../aiedu-log.js"></script>
@@ -104,6 +113,8 @@ a.addEventListener('pointermove',function(e){if(Math.abs(e.clientX-sx)>8||Math.a
 a.addEventListener('pointercancel',function(){bad=true},{passive:true});
 a.addEventListener('click',function(e){if(bad||Date.now()-born<1000){e.preventDefault();bad=false}});
 a.draggable=false;})();
+/* 아이폰·아이패드(사파리)에서도 누르는 동안 버튼이 내려앉아 보이게(:active 켜기) */
+document.addEventListener('touchstart',function(){},{passive:true});
 </script>
 <div class="app">
   <section class="card flag-pane">
